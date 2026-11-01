@@ -1,5 +1,7 @@
 # 宿舍管理系统
 
+这是一个宿舍管理系统的个人练习仓库。
+
 Vue 3 + Vite 前端，Spring Boot 4 + Spring Security 后端，Java 17，支持 MySQL / SQLite。
 
 ## 功能
