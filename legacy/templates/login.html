@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍管理系统 - 登录</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --radius: 20px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-decoration {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+        .bg-decoration:nth-child(1) {
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+        }
+        .bg-decoration:nth-child(2) {
+            background: var(--accent-purple);
+            top: -50px;
+            right: -50px;
+        }
+        .bg-decoration:nth-child(3) {
+            background: var(--secondary);
+            bottom: -80px;
+            left: 20%;
+        }
+        .bg-decoration:nth-child(4) {
+            background: var(--accent-blue);
+            bottom: -60px;
+            right: 10%;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            padding: 50px 45px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 420px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            font-size: 36px;
+            color: white;
+        }
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #E0E6ED;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            background: #FAFBFC;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+            background: white;
+        }
+        input::placeholder {
+            color: #CBD5E0;
+            font-weight: 400;
+        }
+
+        .captcha-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .captcha-group input {
+            flex: 1;
+        }
+        .captcha-img {
+            width: 120px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 2px solid #E0E6ED;
+            transition: all 0.3s ease;
+        }
+        .captcha-img:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+        .captcha-refresh {
+            font-size: 12px;
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 4px;
+            transition: color 0.3s ease;
+        }
+        .captcha-refresh:hover {
+            color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3DB8B0 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: #E74C3C;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #FFF0F0;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid #E74C3C;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .register-link a:hover {
+            color: var(--accent-purple);
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            gap: 15px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E0E6ED;
+        }
+        .divider span {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .demo-info {
+            background: linear-gradient(135deg, #FFF8F8 0%, #F0F8FF 100%);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+            margin-top: 15px;
+        }
+        .demo-info .title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .demo-info .desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-icon">🏠</div>
+            <h2>宿舍管理系统</h2>
+            <p class="login-subtitle">欢迎回来，请登录您的账号</p>
+        </div>
+
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+            <div class="form-group" id="captchaGroup">
+                <label for="captcha">验证码</label>
+                <div class="captcha-group">
+                    <input type="text" id="captcha" name="captcha" placeholder="请输入验证码" maxlength="4">
+                    <img src="/captcha" alt="验证码" class="captcha-img" id="captchaImg" onclick="refreshCaptcha()">
+                </div>
+                <div class="captcha-refresh" onclick="refreshCaptcha()">点击图片刷新验证码</div>
+            </div>
+            <button type="submit">登 录</button>
+        </form>
+
+        <div class="divider">
+            <span>或</span>
+        </div>
+
+        <div class="register-link">
+            还没有账号？<a href="/register">立即注册</a>
+        </div>
+
+        <div class="demo-info">
+            <div class="title">演示账户</div>
+            <div class="desc">用户名: <strong>admin</strong> | 密码: <strong>123456</strong></div>
+        </div>
+    </div>
+
+    <script>
+        function refreshCaptcha() {
+            var img = document.getElementById('captchaImg');
+            img.src = '/captcha?' + Math.random();
+        }
+
+        function checkAdmin() {
+            var username = document.getElementById('username').value.trim().toLowerCase();
+            var captchaGroup = document.getElementById('captchaGroup');
+            var captchaInput = document.getElementById('captcha');
+            
+            if (username === 'admin' || /^\d{8}$/.test(username)) {
+                captchaGroup.style.display = 'none';
+                captchaInput.disabled = true;
+                captchaInput.required = false;
+            } else {
+                captchaGroup.style.display = 'block';
+                captchaInput.disabled = false;
+                captchaInput.required = true;
+            }
+        }
+
+        document.getElementById('username').addEventListener('input', checkAdmin);
+        document.getElementById('username').addEventListener('change', checkAdmin);
+        document.addEventListener('DOMContentLoaded', checkAdmin);
+    </script>
+</body>
+</html>

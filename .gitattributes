@@ -1,0 +1,9 @@
+* text=auto
+*.java text eol=lf
+*.vue text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+mvnw text eol=lf
+*.cmd text eol=crlf

@@ -1,0 +1,1126 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍管理系统 - 首页</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --radius: 20px;
+            --radius-sm: 10px;
+            --ai-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --ai-chat-bg: #F8F9FA;
+            --user-message-bg: var(--accent-blue);
+            --ai-message-bg: var(--card-bg);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .bg-decoration:nth-child(1) {
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+        }
+        .bg-decoration:nth-child(2) {
+            background: var(--accent-purple);
+            top: -50px;
+            right: -50px;
+        }
+        .bg-decoration:nth-child(3) {
+            background: var(--secondary);
+            bottom: -80px;
+            left: 20%;
+        }
+        .bg-decoration:nth-child(4) {
+            background: var(--accent-blue);
+            bottom: -60px;
+            right: 10%;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            background: rgba(0,0,0,0.03);
+            padding: 6px;
+            border-radius: var(--radius-sm);
+        }
+        .nav-links .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .nav-links .nav-link:hover {
+            color: var(--accent-blue);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        .nav-links .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 15px;
+        }
+        .user-info .welcome-text {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .role-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .logout-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all 0.3s ease;
+        }
+        .logout-link:hover {
+            color: var(--primary);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 50px 0;
+            margin-bottom: 40px;
+        }
+        .welcome h2 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .welcome p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .features {
+            margin-top: 30px;
+        }
+        .features h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        .feature-card:nth-child(2)::before {
+            background: linear-gradient(90deg, var(--accent-blue), var(--secondary));
+        }
+        .feature-card:nth-child(3)::before {
+            background: var(--ai-bg);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        .feature-card h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .feature-card .btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+        .feature-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+        }
+        .feature-card:nth-child(2) .btn {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .feature-card:nth-child(2) .btn:hover {
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+        .feature-card:nth-child(3) .btn {
+            background: var(--ai-bg);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .feature-card:nth-child(3) .btn:hover {
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        .stats-section {
+            margin-top: 50px;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .stats-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFF8F8 0%, #F0F8FF 100%);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+        }
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #F0FFF4 0%, #FFF8F8 100%);
+            border-left-color: var(--accent-green);
+        }
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #F0F8FF 0%, #FFF8F8 100%);
+            border-left-color: var(--accent-blue);
+        }
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFF8F8 100%);
+            border-left-color: var(--accent-orange);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .stat-card:nth-child(2) .stat-value {
+            color: var(--accent-green);
+        }
+        .stat-card:nth-child(3) .stat-value {
+            color: var(--accent-blue);
+        }
+        .stat-card:nth-child(4) .stat-value {
+            color: var(--accent-orange);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .grade-section {
+            margin-top: 40px;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .grade-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .grade-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 280px;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .grade-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 120px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .grade-bar {
+            width: 55px;
+            max-height: 220px;
+            border-radius: 8px 8px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-height: 20px;
+        }
+
+        .grade-bar span {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .grade-bar.d大一 {
+            background: linear-gradient(180deg, var(--primary) 0%, #E74C3C 100%);
+        }
+        .grade-bar.d大二 {
+            background: linear-gradient(180deg, var(--accent-blue) 0%, #2980B9 100%);
+        }
+        .grade-bar.d大三 {
+            background: linear-gradient(180deg, var(--accent-green) 0%, #27AE60 100%);
+        }
+        .grade-bar.d大四 {
+            background: linear-gradient(180deg, var(--accent-orange) 0%, #D35400 100%);
+        }
+
+        .grade-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .gender-section {
+            margin-top: 50px;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .gender-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 4px solid var(--accent-yellow);
+        }
+
+        .gender-chart {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            padding: 10px 0;
+        }
+
+        .gender-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .gender-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .gender-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .gender-circle.male {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #5DADE2 100%);
+        }
+
+        .gender-circle.female {
+            background: linear-gradient(135deg, var(--primary) 0%, #F1948A 100%);
+        }
+
+        .gender-circle .value {
+            font-size: 38px;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .gender-circle .label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .gender-name {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .floating-ai-wrapper {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .floating-ai {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            margin-bottom: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-100%) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-ai.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+        }
+
+        .floating-ai-toggle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .floating-ai-toggle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .floating-ai-toggle span {
+            font-size: 26px;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-ai.open + .floating-ai-toggle span {
+            transform: rotate(45deg);
+        }
+
+        .floating-ai-header {
+            background: var(--ai-bg);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .floating-ai-header .ai-icon {
+            font-size: 24px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .floating-ai-header .ai-title {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .floating-ai-commands {
+            padding: 12px 15px;
+            background: var(--ai-chat-bg);
+            border-bottom: 1px solid #E9ECEF;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .floating-ai-commands .command-btn {
+            padding: 5px 12px;
+            background: white;
+            border: 1px solid #DEE2E6;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .floating-ai-commands .command-btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--card-bg);
+        }
+
+        .floating-ai-chat .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .refresh-btn {
+            padding: 8px 16px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: var(--accent-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .refresh-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .floating-ai-chat .message.ai .avatar {
+            background: var(--ai-bg);
+            color: white;
+        }
+
+        .floating-ai-chat .message.user .avatar {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .floating-ai-chat .message-content {
+            flex: 1;
+            max-width: 80%;
+        }
+
+        .floating-ai-chat .message.ai .message-content {
+            background: var(--ai-chat-bg);
+            border: 1px solid #E9ECEF;
+            border-radius: 0 10px 10px 10px;
+        }
+
+        .floating-ai-chat .message.user .message-content {
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 10px 0 10px 10px;
+            margin-left: auto;
+        }
+
+        .floating-ai-chat .message-text {
+            padding: 8px 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .floating-ai-chat .message.ai .message-text {
+            color: var(--text-primary);
+        }
+
+        .floating-ai-chat .message.user .message-text {
+            color: white;
+        }
+
+        .floating-ai-input-area {
+            padding: 12px 15px;
+            background: var(--ai-chat-bg);
+            border-top: 1px solid #E9ECEF;
+            display: flex;
+            gap: 8px;
+        }
+
+        .floating-ai-input-area .ai-input {
+            flex: 1;
+            padding: 8px 14px;
+            border: 1px solid #DEE2E6;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .floating-ai-input-area .ai-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .floating-ai-input-area .ai-send-btn {
+            padding: 8px 16px;
+            background: var(--ai-bg);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-ai-input-area .ai-send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .floating-ai-input-area .ai-send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .floating-ai-export {
+            padding: 12px 15px;
+            background: #F8F9FA;
+            border-top: 1px solid #E9ECEF;
+        }
+
+        .floating-ai-export .export-label {
+            font-size: 12px;
+            color: #6C757D;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .floating-ai-export .export-btn {
+            padding: 6px 12px;
+            background: white;
+            color: #495057;
+            border: 1px solid #DEE2E6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .floating-ai-export .export-btn:hover {
+            background: #E9ECEF;
+            border-color: #ADB5BD;
+        }
+
+        .floating-ai-export .export-btn.primary {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .floating-ai-export .export-btn.primary:hover {
+            background: var(--accent-blue-dark);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .floating-ai-chat .typing-indicator {
+            display: flex;
+            gap: 3px;
+            padding: 8px 12px;
+        }
+
+        .floating-ai-chat .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #ADB5BD;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .floating-ai-chat .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .floating-ai-chat .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .floating-ai-chat .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="header">
+        <h1>🏠 宿舍管理系统</h1>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">首页</a>
+            <a href="/dormitories" class="nav-link">宿舍管理</a>
+            <a href="/buildings" class="nav-link">楼栋管理</a>
+        </div>
+        <div class="user-info">
+            <span class="welcome-text">欢迎, <span th:text="${user.realName != null && !user.realName.isEmpty() ? user.realName : user.username}"></span></span>
+            <span class="role-tag" th:text="${user.role == 'admin' ? '管理员' : '学生'}"></span>
+            <a href="/logout" class="logout-link">退出登录</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="welcome">
+            <h2>🎉 欢迎使用宿舍管理系统</h2>
+            <p>轻松管理学生住宿信息，打造智能化宿舍管理体验</p>
+        </div>
+
+        <div class="features">
+            <h3>系统功能</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏠</div>
+                    <h4>宿舍管理</h4>
+                    <p>管理宿舍分配信息，查看宿舍入住情况</p>
+                    <a href="/dormitories" class="btn">进入管理 →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🏢</div>
+                    <h4>楼栋管理</h4>
+                    <p>管理楼栋信息，批量创建宿舍</p>
+                    <a href="/buildings" class="btn">进入管理 →</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h4>AI智能助手</h4>
+                    <p>智能统计分析，快速获取数据洞察</p>
+                    <a href="#" onclick="toggleFloatingAi()" class="btn">打开助手 →</a>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="section-header">
+                <h3>统计概览</h3>
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 刷新数据</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalStudents" th:text="${totalStudents} ?: 0">0</div>
+                    <div class="stat-label">总学生数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalDormitories" th:text="${totalDormitories} ?: 0">0</div>
+                    <div class="stat-label">总宿舍数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statMaleCount" th:text="${genderStats['男']} ?: 0">0</div>
+                    <div class="stat-label">男生人数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statFemaleCount" th:text="${genderStats['女']} ?: 0">0</div>
+                    <div class="stat-label">女生人数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grade-section">
+            <h3>年级分布</h3>
+            <div class="grade-chart">
+                <div class="grade-bar-wrapper">
+                    <div class="grade-bar d大一" id="gradeBar1" th:attr="data-value=${grade1Count}"></div>
+                    <div class="grade-name">大一</div>
+                </div>
+                <div class="grade-bar-wrapper">
+                    <div class="grade-bar d大二" id="gradeBar2" th:attr="data-value=${grade2Count}"></div>
+                    <div class="grade-name">大二</div>
+                </div>
+                <div class="grade-bar-wrapper">
+                    <div class="grade-bar d大三" id="gradeBar3" th:attr="data-value=${grade3Count}"></div>
+                    <div class="grade-name">大三</div>
+                </div>
+                <div class="grade-bar-wrapper">
+                    <div class="grade-bar d大四" id="gradeBar4" th:attr="data-value=${grade4Count}"></div>
+                    <div class="grade-name">大四</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gender-section">
+            <h3>男女比例</h3>
+            <div class="gender-chart">
+                <div class="gender-item">
+                    <div class="gender-circle male">
+                        <div class="value" th:text="${genderStats['男']} ?: 0">0</div>
+                        <div class="label">男生</div>
+                    </div>
+                    <div class="gender-name">男生</div>
+                </div>
+                <div class="gender-item">
+                    <div class="gender-circle female">
+                        <div class="value" th:text="${genderStats['女']} ?: 0">0</div>
+                        <div class="label">女生</div>
+                    </div>
+                    <div class="gender-name">女生</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <th:block th:insert="~{fragments/ai-chat :: body}"></th:block>
+
+    <script>
+        var autoRefreshInterval;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initGradeChart();
+            startAutoRefresh();
+        });
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            autoRefreshInterval = setInterval(function() {
+                refreshDashboard(true);
+            }, 30000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        async function refreshDashboard(silent = false) {
+            if (!silent) {
+                var btn = document.querySelector('.refresh-btn');
+                if (btn) {
+                    btn.innerHTML = '⏳ 刷新中...';
+                    btn.disabled = true;
+                }
+            }
+
+            try {
+                const response = await fetch('/api/data/refresh');
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.totalStudents !== undefined) {
+                        document.getElementById('statTotalStudents').textContent = data.totalStudents;
+                    }
+                    if (data.totalDormitories !== undefined) {
+                        document.getElementById('statTotalDormitories').textContent = data.totalDormitories;
+                    }
+                    if (data.genderStats && data.genderStats['男'] !== undefined) {
+                        document.getElementById('statMaleCount').textContent = data.genderStats['男'];
+                    }
+                    if (data.genderStats && data.genderStats['女'] !== undefined) {
+                        document.getElementById('statFemaleCount').textContent = data.genderStats['女'];
+                    }
+
+                    if (data.grade1Count !== undefined) {
+                        var bar1 = document.getElementById('gradeBar1');
+                        if (bar1) bar1.setAttribute('data-value', data.grade1Count);
+                    }
+                    if (data.grade2Count !== undefined) {
+                        var bar2 = document.getElementById('gradeBar2');
+                        if (bar2) bar2.setAttribute('data-value', data.grade2Count);
+                    }
+                    if (data.grade3Count !== undefined) {
+                        var bar3 = document.getElementById('gradeBar3');
+                        if (bar3) bar3.setAttribute('data-value', data.grade3Count);
+                    }
+                    if (data.grade4Count !== undefined) {
+                        var bar4 = document.getElementById('gradeBar4');
+                        if (bar4) bar4.setAttribute('data-value', data.grade4Count);
+                    }
+
+                    initGradeChart();
+
+                    var maleCircle = document.querySelector('.gender-circle.male .value');
+                    if (maleCircle && data.genderStats && data.genderStats['男'] !== undefined) {
+                        maleCircle.textContent = data.genderStats['男'];
+                    }
+                    var femaleCircle = document.querySelector('.gender-circle.female .value');
+                    if (femaleCircle && data.genderStats && data.genderStats['女'] !== undefined) {
+                        femaleCircle.textContent = data.genderStats['女'];
+                    }
+
+                    if (!silent) {
+                        showToast('数据刷新成功！');
+                    }
+                } else {
+                    if (!silent) {
+                        showToast('数据刷新失败：' + (data.error || '未知错误'), true);
+                    }
+                }
+            } catch (error) {
+                if (!silent) {
+                    showToast('网络连接异常，无法刷新数据', true);
+                }
+            } finally {
+                if (!silent) {
+                    var btn = document.querySelector('.refresh-btn');
+                    if (btn) {
+                        btn.innerHTML = '🔄 刷新数据';
+                        btn.disabled = false;
+                    }
+                }
+            }
+        }
+
+        function showToast(message, isError = false) {
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + (isError ? 'error' : 'success');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                background: ${isError ? '#ff6b6b' : '#51cf66'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function initGradeChart() {
+            var bars = [
+                { id: 'gradeBar1', label: '大一' },
+                { id: 'gradeBar2', label: '大二' },
+                { id: 'gradeBar3', label: '大三' },
+                { id: 'gradeBar4', label: '大四' }
+            ];
+            
+            var gradeValues = {};
+            bars.forEach(function(bar) {
+                var el = document.getElementById(bar.id);
+                if (el) {
+                    var val = el.getAttribute('data-value');
+                    gradeValues[bar.label] = parseInt(val) || 0;
+                }
+            });
+            
+            var maxValue = Math.max(
+                gradeValues['大一'],
+                gradeValues['大二'],
+                gradeValues['大三'],
+                gradeValues['大四'],
+                1
+            );
+            
+            var maxHeight = 200;
+            
+            bars.forEach(function(bar) {
+                var value = gradeValues[bar.label];
+                var height = Math.max((value / maxValue) * maxHeight, 20);
+                var barEl = document.getElementById(bar.id);
+                if (barEl) {
+                    barEl.style.height = height + 'px';
+                    barEl.innerHTML = '<span>' + value + '</span>';
+                }
+            });
+        }
+
+        
+    </script>
+</body>
+</html>

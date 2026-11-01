@@ -1,0 +1,652 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍管理系统 - 楼栋管理</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --radius: 20px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .bg-decoration:nth-child(1) {
+            background: var(--accent-blue);
+            top: -100px;
+            left: -100px;
+        }
+        .bg-decoration:nth-child(2) {
+            background: var(--secondary);
+            top: -50px;
+            right: -50px;
+        }
+        .bg-decoration:nth-child(3) {
+            background: var(--accent-green);
+            bottom: -80px;
+            left: 20%;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            background: rgba(0,0,0,0.03);
+            padding: 6px;
+            border-radius: var(--radius-sm);
+        }
+        .nav-links .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .nav-links .nav-link:hover {
+            color: var(--accent-blue);
+            background: rgba(52, 152, 219, 0.1);
+        }
+        .nav-links .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 15px;
+        }
+        .user-info .welcome-text {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .role-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .logout-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all 0.3s ease;
+        }
+        .logout-link:hover {
+            color: var(--primary);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .page-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .page-header .btn-add {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+        .page-header .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .stat-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-item .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .table-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #F0F2F5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-header .title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .table-header .count {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 16px 25px;
+            text-align: left;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        th {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .gender-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .gender-tag.male {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--accent-blue);
+        }
+        .gender-tag.female {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-group a {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-edit {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--accent-green);
+        }
+        .btn-edit:hover {
+            background: rgba(46, 204, 113, 0.2);
+        }
+        .btn-delete {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--primary);
+        }
+        .btn-delete:hover {
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 60px;
+            font-size: 16px;
+        }
+
+        .floating-ai-wrapper {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .floating-ai {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            margin-bottom: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-100%) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-ai.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+        }
+
+        .floating-ai-toggle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .floating-ai-toggle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .floating-ai-toggle span {
+            font-size: 26px;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-ai.open + .floating-ai-toggle span {
+            transform: rotate(45deg);
+        }
+
+        .floating-ai-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floating-ai-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .floating-ai-header .ai-icon {
+            font-size: 32px;
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-ai-header .ai-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .floating-ai-commands {
+            padding: 16px 20px;
+            background: #F8F9FA;
+            border-bottom: 1px solid #E9ECEF;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .floating-ai-commands .command-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #DEE2E6;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .floating-ai-commands .command-btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #FAFBFC;
+        }
+
+        .floating-ai-chat::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .floating-ai-chat::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .floating-ai-chat::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+
+        .floating-ai-chat .message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating-ai-chat .message.ai .avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .floating-ai-chat .message.user .avatar {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+        }
+
+        .floating-ai-chat .message-content {
+            flex: 1;
+            max-width: 85%;
+        }
+
+        .floating-ai-chat .message.ai .message-content {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .floating-ai-chat .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .floating-ai-chat .message-text {
+            padding: 10px 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .floating-ai-input-area {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            gap: 10px;
+        }
+
+        .floating-ai-input-area .ai-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #FAFBFC;
+        }
+
+        .floating-ai-input-area .ai-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+            background: white;
+        }
+
+        .floating-ai-input-area .ai-send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+        }
+
+        .floating-ai-input-area .ai-send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .floating-ai-input-area .ai-send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .floating-ai-chat .typing-indicator {
+            display: flex;
+            gap: 3px;
+            padding: 8px 12px;
+        }
+
+        .floating-ai-chat .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #ADB5BD;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .floating-ai-chat .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .floating-ai-chat .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .floating-ai-chat .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="header">
+        <h1>🏠 宿舍管理系统</h1>
+        <div class="nav-links">
+            <a href="/" class="nav-link">首页</a>
+            <a href="/dormitories" class="nav-link">宿舍管理</a>
+            <a href="/buildings" class="nav-link active">楼栋管理</a>
+        </div>
+        <div class="user-info">
+            <span class="welcome-text">欢迎, <span th:text="${user.realName != null && !user.realName.isEmpty() ? user.realName : user.username}"></span></span>
+            <span class="role-tag" th:text="${user.role == 'admin' ? '管理员' : '学生'}"></span>
+            <a href="/logout" class="logout-link">退出登录</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="page-header">
+            <h2>楼栋管理</h2>
+            <a href="/buildings/add" class="btn-add" th:if="${user.role == 'admin'}">
+                ➕ 添加楼栋
+            </a>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="value" style="font-size:20px;">楼栋总数 <span style="font-size:28px;font-weight:700;background:linear-gradient(135deg,#3498DB,#2ECC71);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">[[${#lists.size(buildings)}]]</span> 栋</div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <span class="title">楼栋列表</span>
+                <span class="count">共 [[${#lists.size(buildings)}]] 条记录</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>楼栋名称</th>
+                        <th>性别限制</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="building : ${buildings}">
+                        <td th:text="${building.name}"></td>
+                        <td>
+                            <span class="gender-tag" th:classappend="${building.gender == '男' ? 'male' : 'female'}" th:text="${building.gender}"></span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/buildings/edit/{id}(id=${building.id})}" class="btn-edit" th:if="${user.role == 'admin'}">编辑</a>
+                                <a th:href="@{/buildings/delete/{id}(id=${building.id})}" class="btn-delete" th:if="${user.role == 'admin'}" onclick="return confirm('确定要删除这个楼栋吗？删除后该楼栋下的所有宿舍也会被删除。')">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(buildings)}">
+                        <td colspan="3" class="empty">暂无楼栋数据</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <th:block th:insert="~{fragments/ai-chat :: body}"></th:block>
+
+    <script>
+    </script>
+</body>
+</html>

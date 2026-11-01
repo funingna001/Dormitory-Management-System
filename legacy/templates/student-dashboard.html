@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学生中心 - 宿舍管理系统</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-lg: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 30px;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bg-decoration:nth-child(1) { background: var(--primary); top: -100px; left: -100px; }
+        .bg-decoration:nth-child(2) { background: var(--accent-purple); top: -80px; right: -80px; }
+        .bg-decoration:nth-child(3) { background: var(--secondary); bottom: -100px; left: 10%; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 10;
+        }
+        .header-left h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3DB8B0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .logout-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #FFE66D 0%, #F39C12 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(253, 150, 33, 0.3);
+        }
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(253, 150, 33, 0.4);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+        }
+        .card-icon.profile { background: linear-gradient(135deg, rgba(78,205,196,0.15) 0%, rgba(61,184,176,0.15) 100%); }
+        .card-icon.dormitory { background: linear-gradient(135deg, rgba(52,152,219,0.15) 0%, rgba(41,128,185,0.15) 100%); }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .info-item {
+            background: #FAFBFC;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            transition: transform 0.2s ease;
+        }
+        .info-item:active {
+            transform: scale(0.98);
+        }
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dormitory-status {
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, rgba(78,205,196,0.12) 0%, rgba(61,184,176,0.12) 100%);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .dormitory-status .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3DB8B0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .dormitory-status .status-content {
+            flex: 1;
+        }
+        .dormitory-status .title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .dormitory-status .desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .no-dormitory {
+            text-align: center;
+            padding: 32px 20px;
+            background: linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(253,150,33,0.08) 100%);
+            border-radius: var(--radius-sm);
+            margin-top: 10px;
+        }
+        .no-dormitory .icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+        }
+        .no-dormitory .text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            color: white;
+            text-align: center;
+            padding: 36px 24px;
+            border-radius: var(--radius-lg);
+        }
+        .welcome-card .welcome-icon {
+            font-size: 56px;
+            margin-bottom: 14px;
+        }
+        .welcome-card h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        .welcome-card p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 24px;
+                max-width: 900px;
+                margin: 0 auto;
+            }
+            .header-left h1 {
+                font-size: 28px;
+            }
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .welcome-card {
+                grid-column: span 2;
+                padding: 40px;
+            }
+            .welcome-card h2 {
+                font-size: 26px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                max-width: 1100px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1.2fr 1fr;
+                gap: 24px;
+            }
+            .welcome-card {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="header">
+        <div class="header-left">
+            <h1>🏠 宿舍管理系统</h1>
+            <p>欢迎回来，<span th:text="${user.realName}"></span></p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" th:text="${user.realName != null ? user.realName.charAt(0) : '?'}"></div>
+                <div class="user-name" th:text="${user.realName}"></div>
+            </div>
+            <button class="logout-btn" onclick="location.href='/logout'">退出登录</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="welcome-card">
+            <div class="welcome-icon">👋</div>
+            <h2>欢迎来到学生中心</h2>
+            <p>在这里查看您的个人信息和宿舍分配情况</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">个人信息</div>
+                <div class="card-icon profile">👤</div>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">姓名</div>
+                    <div class="info-value" th:text="${student != null ? student.name : '--'}"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">学号</div>
+                    <div class="info-value" th:text="${user.username}"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">年级</div>
+                    <div class="info-value" th:text="${student != null ? student.grade : '--'}"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">班级</div>
+                    <div class="info-value" th:text="${student != null ? student.className : '--'}"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">性别</div>
+                    <div class="info-value" th:text="${student != null ? student.gender : '--'}"></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">联系电话</div>
+                    <div class="info-value" th:text="${student != null ? student.phone : '--'}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">宿舍信息</div>
+                <div class="card-icon dormitory">🏢</div>
+            </div>
+            <div th:if="${student != null && student.dormitoryNumber != null && !student.dormitoryNumber.isEmpty()}">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">宿舍号</div>
+                        <div class="info-value" th:text="${student.dormitoryNumber}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">楼栋</div>
+                        <div class="info-value" th:text="${dormitory != null ? dormitory.building : '--'}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">房间类型</div>
+                        <div class="info-value" th:text="${dormitory != null ? dormitory.room_type : '--'}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">住宿人数</div>
+                        <div class="info-value" th:text="${dormitory != null ? dormitory.current_count + '/' + dormitory.capacity : '--'}"></div>
+                    </div>
+                </div>
+                <div class="dormitory-status">
+                    <div class="status-icon">✓</div>
+                    <div class="status-content">
+                        <div class="title">宿舍状态</div>
+                        <div class="desc">已成功分配宿舍</div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${student == null || student.dormitoryNumber == null || student.dormitoryNumber.isEmpty()}">
+                <div class="no-dormitory">
+                    <div class="icon">🔍</div>
+                    <div class="text">暂未分配宿舍<br>请等待管理员分配</div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${student != null && student.isDormitoryLeader()}" class="card">
+            <div class="card-header">
+                <div class="card-title">宿舍管理</div>
+                <div class="card-icon dormitory">🔧</div>
+            </div>
+            <div class="leader-actions">
+                <div class="leader-badge">🏆 您是本宿舍的宿舍长</div>
+                <div class="action-buttons">
+                    <a href="/repair/apply" class="action-btn repair-btn">
+                        <div class="btn-icon">🛠️</div>
+                        <div class="btn-text">设备报修</div>
+                    </a>
+                    <a href="/repair/my-repairs" class="action-btn history-btn">
+                        <div class="btn-icon">📋</div>
+                        <div class="btn-text">报修记录</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .leader-actions {
+            padding-top: 10px;
+        }
+        .leader-badge {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(253, 150, 33, 0.1) 100%);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            color: #FF6B6B;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #FAFBFC;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            border-color: var(--secondary);
+        }
+        .btn-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .btn-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    </style>
+</body>
+</html>

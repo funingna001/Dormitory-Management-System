@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>报修任务列表 - 维修工中心</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-purple: #9B59B6;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --radius: 20px;
+            --radius-sm: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F5E9 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-left h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary) 0%, #2ECC71 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .filter-tab {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            white-space: nowrap;
+        }
+        .filter-tab:hover {
+            background: rgba(78, 205, 196, 0.1);
+        }
+        .filter-tab.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2ECC71 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .repair-item {
+            background: #FAFBFC;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+        .repair-item.pending { border-color: #F39C12; }
+        .repair-item.processing { border-color: #3498DB; }
+        .repair-item.completed { border-color: #2ECC71; }
+        .repair-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .repair-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .repair-info {
+            flex: 1;
+        }
+        .repair-type {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .repair-dorm {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .repair-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .repair-status.pending {
+            background: rgba(253, 150, 33, 0.15);
+            color: #F39C12;
+        }
+        .repair-status.processing {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498DB;
+        }
+        .repair-status.completed {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ECC71;
+        }
+
+        .repair-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+            padding-left: 10px;
+            border-left: 2px solid #E8EEF2;
+        }
+
+        .repair-image {
+            margin-bottom: 12px;
+        }
+        .repair-image img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .repair-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #95A5A6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .action-btn.start {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498DB;
+        }
+        .action-btn.start:hover {
+            background: rgba(52, 152, 219, 0.25);
+        }
+        .action-btn.complete {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ECC71;
+        }
+        .action-btn.complete:hover {
+            background: rgba(46, 204, 113, 0.25);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+        .empty-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>📋 报修任务列表</h1>
+        </div>
+        <button class="back-btn" onclick="location.href='/worker/dashboard'">← 返回</button>
+    </div>
+
+    <div class="filter-tabs">
+        <button class="filter-tab" th:class="${selectedStatus == null ? 'active' : ''}" onclick="location.href='/worker/repair-list'">全部</button>
+        <button class="filter-tab" th:class="${selectedStatus == '待处理' ? 'active' : ''}" onclick="location.href='/worker/repair-list?status=待处理'">待处理</button>
+        <button class="filter-tab" th:class="${selectedStatus == '处理中' ? 'active' : ''}" onclick="location.href='/worker/repair-list?status=处理中'">处理中</button>
+        <button class="filter-tab" th:class="${selectedStatus == '已完成' ? 'active' : ''}" onclick="location.href='/worker/repair-list?status=已完成'">已完成</button>
+    </div>
+
+    <div class="card">
+        <div th:if="${#lists.isEmpty(repairs)}" class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-text">暂无报修记录</div>
+        </div>
+
+        <div th:each="repair : ${repairs}" th:class="'repair-item ' + (repair.status == '待处理' ? 'pending' : repair.status == '处理中' ? 'processing' : 'completed')">
+            <div class="repair-header">
+                <div class="repair-info">
+                    <div class="repair-type">[[${repair.repairType}]]</div>
+                    <div class="repair-dorm">[[${repair.dormitoryNumber}]]</div>
+                </div>
+                <div th:class="'repair-status ' + (repair.status == '待处理' ? 'pending' : repair.status == '处理中' ? 'processing' : 'completed')">
+                    [[${repair.status}]]
+                </div>
+            </div>
+            <div class="repair-desc">[[${repair.description}]]</div>
+            <div th:if="${repair.imagePath != null && !repair.imagePath.isEmpty()}" class="repair-image">
+                <img th:src="${repair.imagePath}" alt="故障图片" />
+            </div>
+            <div class="repair-footer">
+                <div>报修人：[[${repair.studentName}]] ([[${repair.studentId}]])</div>
+                <div>提交时间：[[${#temporals.format(repair.createTime, 'yyyy-MM-dd HH:mm')}]]</div>
+            </div>
+            <div class="action-buttons" style="margin-top: 12px;">
+                <form th:if="${repair.status == '待处理'}" action="/worker/start-repair" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="[[${repair.id}]]" />
+                    <button type="submit" class="action-btn start">开始维修</button>
+                </form>
+                <form th:if="${repair.status == '待处理' || repair.status == '处理中'}" action="/worker/complete-repair" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="[[${repair.id}]]" />
+                    <button type="submit" class="action-btn complete">标记完成</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

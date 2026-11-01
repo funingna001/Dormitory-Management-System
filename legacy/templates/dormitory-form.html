@@ -1,0 +1,601 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍管理系统 - 添加/编辑宿舍</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --radius: 20px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .bg-decoration:nth-child(1) {
+            background: var(--accent-blue);
+            top: -100px;
+            left: -100px;
+        }
+        .bg-decoration:nth-child(2) {
+            background: var(--secondary);
+            top: -50px;
+            right: -50px;
+        }
+        .bg-decoration:nth-child(3) {
+            background: var(--accent-green);
+            bottom: -80px;
+            left: 20%;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 15px;
+        }
+        .user-info .welcome-text {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .role-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .user-info a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all 0.3s ease;
+        }
+        .user-info a:hover {
+            color: var(--accent-blue);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-divider {
+            margin: 30px 0;
+            border-top: 2px dashed #E0E6ED;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        .form-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-group label .required {
+            color: var(--primary);
+            margin-left: 4px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #E0E6ED;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            background: #FAFBFC;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background: white;
+        }
+        .form-group input::placeholder {
+            color: #CBD5E0;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn-group button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        .btn-cancel {
+            background: #F8F9FA;
+            color: var(--text-secondary);
+            border: 2px solid #E9ECEF;
+        }
+        .btn-cancel:hover {
+            background: #E9ECEF;
+        }
+
+        .error {
+            background: #FFF0F0;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            color: #E74C3C;
+            font-weight: 500;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .floating-ai-wrapper {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .floating-ai {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            margin-bottom: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-100%) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-ai.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+        }
+
+        .floating-ai-toggle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .floating-ai-toggle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .floating-ai-toggle span {
+            font-size: 26px;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-ai.open + .floating-ai-toggle span {
+            transform: rotate(45deg);
+        }
+
+        .floating-ai-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .floating-ai-header .ai-icon {
+            font-size: 24px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .floating-ai-header .ai-title {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .floating-ai-commands {
+            padding: 12px 15px;
+            background: #F8F9FA;
+            border-bottom: 1px solid #E9ECEF;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .floating-ai-commands .command-btn {
+            padding: 5px 12px;
+            background: white;
+            border: 1px solid #DEE2E6;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .floating-ai-commands .command-btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--card-bg);
+        }
+
+        .floating-ai-chat .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating-ai-chat .message.ai .avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .floating-ai-chat .message.user .avatar {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .floating-ai-chat .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .floating-ai-chat .message-content {
+            flex: 1;
+            max-width: 80%;
+        }
+
+        .floating-ai-chat .message.ai .message-content {
+            background: #F8F9FA;
+            border: 1px solid #E9ECEF;
+            border-radius: 0 10px 10px 10px;
+        }
+
+        .floating-ai-chat .message.user .message-content {
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 10px 0 10px 10px;
+            margin-left: auto;
+        }
+
+        .floating-ai-chat .message-text {
+            padding: 8px 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .floating-ai-chat .message.ai .message-text {
+            color: var(--text-primary);
+        }
+
+        .floating-ai-chat .message.user .message-text {
+            color: white;
+        }
+
+        .floating-ai-input-area {
+            padding: 12px 15px;
+            background: #F8F9FA;
+            border-top: 1px solid #E9ECEF;
+            display: flex;
+            gap: 8px;
+        }
+
+        .floating-ai-input-area .ai-input {
+            flex: 1;
+            padding: 8px 14px;
+            border: 1px solid #DEE2E6;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .floating-ai-input-area .ai-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .floating-ai-input-area .ai-send-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-ai-input-area .ai-send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .floating-ai-input-area .ai-send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .floating-ai-chat .typing-indicator {
+            display: flex;
+            gap: 3px;
+            padding: 8px 12px;
+        }
+
+        .floating-ai-chat .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #ADB5BD;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .floating-ai-chat .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .floating-ai-chat .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .floating-ai-chat .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="header">
+        <h1>🏠 宿舍管理系统</h1>
+        <div class="user-info">
+            <span class="welcome-text">欢迎, <span th:text="${user.realName != null && !user.realName.isEmpty() ? user.realName : user.username}"></span></span>
+            <span class="role-tag" th:text="${user.role == 'admin' ? '管理员' : '学生'}"></span>
+            <a href="/">首页</a>
+            <a href="/dormitories">宿舍管理</a>
+            <a href="/logout">退出登录</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>[[${dormitory.id != null ? '编辑宿舍' : '添加宿舍'}]]</h2>
+                <p>请填写宿舍信息</p>
+            </div>
+
+            <div th:if="${error}" class="error" th:text="${error}"></div>
+
+            <form th:action="${action}" method="post">
+                <div class="form-group">
+                    <label for="dormitoryNumber">宿舍号<span class="required">*</span></label>
+                    <input type="text" id="dormitoryNumber" name="dormitoryNumber" th:value="${dormitory.dormitoryNumber}" placeholder="请输入四位数字（如：0101）" required maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label for="building">楼栋<span class="required">*</span></label>
+                    <select id="building" name="building" required>
+                        <option value="">请选择楼栋</option>
+                        <option th:each="b : ${buildings}" th:value="${b.name}" th:selected="${dormitory.building == b.name}">[[${b.name}]]（[[${b.gender}]]）</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="roomType">房间类型<span class="required">*</span></label>
+                        <select id="roomType" name="roomType" required>
+                            <option value="">请选择房间类型</option>
+                            <option th:each="rt : ${roomTypes}" th:value="${rt}" th:selected="${dormitory.roomType == rt}">[[${rt}]]</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="capacity">容量<span class="required">*</span></label>
+                        <input type="number" id="capacity" name="capacity" th:value="${dormitory.capacity}" placeholder="请输入房间容量" required min="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="currentCount">入住人数</label>
+                        <input type="number" id="currentCount" name="currentCount" th:value="${dormitory.currentCount}" placeholder="请输入入住人数" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">性别限制<span class="required">*</span></label>
+                        <select id="gender" name="gender" required>
+                            <option value="">请选择性别限制</option>
+                            <option th:each="g : ${genders}" th:value="${g}" th:selected="${dormitory.gender == g}">[[${g}]]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="remark">备注</label>
+                    <textarea id="remark" name="remark" th:value="${dormitory.remark}" placeholder="请输入备注信息"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn-submit">[[${dormitory.id != null ? '保存修改' : '添加宿舍'}]]</button>
+                    <button type="button" class="btn-cancel" onclick="window.location.href='/dormitories'">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block th:insert="~{fragments/ai-chat :: body}"></th:block>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roomTypeSelect = document.getElementById('roomType');
+            const capacityInput = document.getElementById('capacity');
+            
+            roomTypeSelect.addEventListener('change', function() {
+                const roomType = this.value;
+                if (roomType === '二人间') {
+                    capacityInput.value = 2;
+                } else if (roomType === '四人间') {
+                    capacityInput.value = 4;
+                } else if (roomType === '六人间') {
+                    capacityInput.value = 6;
+                }
+            });
+        });
+
+        
+    </script>
+</body>
+</html>

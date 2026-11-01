@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>完善资料 - 宿舍管理系统</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent-yellow: #FFE66D;
+            --accent-purple: #9B59B6;
+            --accent-blue: #3498DB;
+            --accent-green: #2ECC71;
+            --accent-orange: #F39C12;
+            --bg-gradient-start: #FFF5F5;
+            --bg-gradient-end: #E8F4FD;
+            --card-bg: #FFFFFF;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --radius: 20px;
+            --radius-sm: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+        .bg-decoration:nth-child(1) { background: var(--primary); top: -100px; left: -100px; }
+        .bg-decoration:nth-child(2) { background: var(--accent-purple); top: -50px; right: -50px; }
+        .bg-decoration:nth-child(3) { background: var(--secondary); bottom: -80px; left: 20%; }
+        .bg-decoration:nth-child(4) { background: var(--accent-blue); bottom: -60px; right: 10%; }
+
+        .container {
+            background: var(--card-bg);
+            padding: 50px 45px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 520px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3DB8B0 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+        }
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #E0E6ED;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            background: #FAFBFC;
+            transition: all 0.3s ease;
+            outline: none;
+            font-family: inherit;
+        }
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.1);
+            background: white;
+        }
+        input::placeholder {
+            color: #CBD5E0;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 12px;
+        }
+        .gender-option {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #E0E6ED;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .gender-option.selected {
+            border-color: var(--secondary);
+            background: rgba(78, 205, 196, 0.1);
+            color: var(--secondary);
+        }
+        .gender-option:hover {
+            border-color: var(--secondary);
+        }
+        input[name="gender"] {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3DB8B0 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .error {
+            color: #E74C3C;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #FFF0F0;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid #E74C3C;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #FFF8F8 0%, #F0F8FF 100%);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 24px;
+        }
+        .info-card .title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .info-card .desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">👤</div>
+            <h2>完善个人资料</h2>
+            <p class="subtitle">首次登录请完善您的个人信息</p>
+        </div>
+
+        <div class="info-card">
+            <div class="title">📌 温馨提示</div>
+            <div class="desc">您的学号：<strong th:text="${user.username}"></strong><br>请填写真实信息，以便管理员进行宿舍分配和管理。</div>
+        </div>
+
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+
+        <form action="/student/profile" method="post">
+            <div class="form-group">
+                <label for="name">姓名 <span style="color: var(--primary)">*</span></label>
+                <input type="text" id="name" name="name" placeholder="请输入姓名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="studentId">学号 <span style="color: var(--primary)">*</span></label>
+                <input type="text" id="studentId" name="studentId" th:value="${user.username}" placeholder="请输入学号" required readonly>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="grade">年级 <span style="color: var(--primary)">*</span></label>
+                    <select id="grade" name="grade" required>
+                        <option value="">请选择年级</option>
+                        <option value="大一">大一</option>
+                        <option value="大二">大二</option>
+                        <option value="大三">大三</option>
+                        <option value="大四">大四</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="className">班级 <span style="color: var(--primary)">*</span></label>
+                    <input type="text" id="className" name="className" placeholder="请输入班级" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>性别 <span style="color: var(--primary)">*</span></label>
+                <div class="gender-options">
+                    <label class="gender-option" onclick="selectGender('男')">
+                        <input type="radio" name="gender" value="男" required>
+                        👦 男
+                    </label>
+                    <label class="gender-option" onclick="selectGender('女')">
+                        <input type="radio" name="gender" value="女" required>
+                        👧 女
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">联系电话 <span style="color: var(--primary)">*</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="请输入联系电话" required>
+            </div>
+
+            <button type="submit">提交并进入系统</button>
+        </form>
+    </div>
+
+    <script>
+        function selectGender(gender) {
+            document.querySelectorAll('.gender-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+    </script>
+</body>
+</html>
