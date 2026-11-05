@@ -1,4 +1,4 @@
-# 扩展业务 API
+# 业务 API
 
 前缀 `/api/business`。所有接口均要求登录；写操作要求 CSRF。身份、角色、学生归属与楼栋范围由后端获取，客户端不能指定操作人。错误沿用 `{success:false,message}`。
 
@@ -50,24 +50,25 @@
 | `/allocations/preview` | POST | 管理员，`studentIds,buildingIds`，返回分配建议 |
 | `/allocations/{id}/confirm` | POST | 创建预览的管理员确认，逐项检查床位版本，整批事务 |
 
-报修列表、提交与附件仍使用 `/api/repairs`，现在列表为数据库字段命名的工单视图。旧状态修改入口不能跳过派单和学生验收。
+报修列表、提交与附件使用 `/api/repairs`，列表字段采用数据库列名。兼容的状态修改接口也要检查派单和验收顺序。
 
 费用以元接收、整数分存储。`PAYMENT` 为缴费登记，`REFUND` 为退款登记；凭据号必须全局唯一。只有管理员能确认收退款，系统不发起真实第三方支付。
 
 学籍状态 `ENROLLED/GRADUATED/SUSPENDED/WITHDRAWN`；申请 `CHECKIN/TRANSFER/CHECKOUT`；审批 `PENDING/APPROVED/REJECTED/COMPLETED/CANCELLED`；报修 `待处理→处理中→待验收→已完成`，验收失败回到处理中。
-# 业务列表性能接口
+
+## 分页列表与选择项
 
 业务页面使用 `GET /api/business/lists/{resource}?page=1&size=20&search=`，返回 `{items,total,page,size}`。`page` 为 1 至 1000000，`size` 为 1 至 100，搜索最多 200 字符。权限、搜索、总数统计和分页在 SQL 中完成；总数只包含当前用户有权查看且匹配搜索的记录。排序固定并包含唯一编号。搜索将 `%`、`_` 作为普通字符处理，不接受客户端 SQL 或任意排序表达式。
 
-`resource` 支持 `students`、`rooms`、`beds`、`applications`、`history`、`leaders`、`accounts`、`audit`、`announcements`、`notifications`、`stays`、`visitors`、`inspections`、`bills`、`assets`、`handovers`、`repairs`。学生不能通过搜索床位的隐藏身份字段推测室友信息。审计与消息分页可访问原来 1000／500 条限制以外的记录。
+`resource` 支持 `students`、`rooms`、`beds`、`applications`、`history`、`leaders`、`accounts`、`audit`、`announcements`、`notifications`、`stays`、`visitors`、`inspections`、`bills`、`assets`、`handovers`、`repairs`。床位搜索不会匹配无权查看的学生身份字段，审计和消息列表也支持分页。
 
 `GET /api/business/options/{source}?page=1&size=50&search=&ids=&unhoused=false` 返回 `{items,total,page,size}`。`source` 支持 `students,rooms,buildings,workers,beds`；每页最多 100，搜索最多 100 字符并按名称／编号前缀匹配，`ids` 为逗号分隔的已选编号（维修人员为账号），最多 500 个。学生选项的 `unhoused=true` 仅返回未入住的在校学生。编号回查同样受权限约束。表单和批量分配均使用这些分页选项。
 
-旧的 `GET /api/business/options?include=students,rooms` 保留兼容，省略 `include` 时维持原有行为。新页面不再使用全量选项接口。
+`GET /api/business/options?include=students,rooms` 仅用于兼容，当前表单使用上述分页接口。
 
-列表可增加精确 `state`、`building`（完整楼栋名称）、`from`、`to`（含首尾日的 `YYYY-MM-DD` 日期）。不适用的筛选项返回 400；具体日期含义见[优化说明](OPTIMIZATIONS.md)。管理员还可使用 `resource=consistency` 分页查询住宿异常报告，检查过程不自动修改数据。
+列表可增加精确 `state`、`building`（完整楼栋名称）、`from`、`to`（含首尾日的 `YYYY-MM-DD` 日期）。不适用的筛选项返回 400；具体日期含义见[查询与事务说明](OPTIMIZATIONS.md)。管理员还可使用 `resource=consistency` 分页查询住宿异常报告，检查过程不自动修改数据。
 
-原有数组列表接口保留兼容，数据查询复用相同 SQL 权限规则。新的业务页面不再调用这些无分页列表接口。导出接口仍用于完整导出，受管理员权限控制。
+数组列表接口保留兼容，复用相同的 SQL 权限规则。页面使用分页列表，需要完整数据时由管理员调用导出接口。
 
-启动通过 `business_migration` 的版本 1 跳过已完成的住宿接入，版本 2 执行 `db/performance-indexes.sql` 索引升级。事务按涉及的学生、房间和业务记录加锁；导出采用同一事务快照和流式工作簿。详情见[优化说明](OPTIMIZATIONS.md)。
+启动通过 `business_migration` 的版本 1 跳过已完成的住宿接入，版本 2 执行 `db/performance-indexes.sql` 索引升级。事务按涉及的学生、房间和业务记录加锁；导出采用同一事务快照和流式工作簿。详情见[查询与事务说明](OPTIMIZATIONS.md)。
 

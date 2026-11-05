@@ -1,6 +1,6 @@
-# API 约定
+# 基础 API
 
-用户确认的 15 项扩展业务详见 [业务 API](BUSINESS-API.md)；以下为原有基础接口，入住、移出和归档同样受新增床位、房间状态和交接规则约束。
+以下为认证、学生、宿舍和统计等基础接口。床位、住宿申请、费用等接口见 [业务 API](BUSINESS-API.md)。入住、移出和归档共用床位、房间状态及交接校验。
 
 所有接口以 `/api` 开头，返回 JSON；导出和验证码、附件返回二进制。错误格式为 `{ "success": false, "message": "错误说明" }`，使用 400 / 401 / 403 / 404 / 409 / 413 / 429 / 500 等 HTTP 状态码。
 
@@ -17,7 +17,7 @@
 | `/auth/logout` | POST | 登录用户，注销会话 |
 | `/students` | GET | 管理员，分页筛选 |
 | `/students` | POST | 管理员，新增学生，可用 initialPassword 创建对应账号 |
-| `/students/{id}` | GET / PUT / DELETE | 管理员，学号不可修改；DELETE 现在办理毕业归档，不硬删除学生与历史 |
+| `/students/{id}` | GET / PUT / DELETE | 管理员，学号不可修改；DELETE 办理毕业归档，不硬删除学生与历史 |
 | `/students/batch-delete` | POST | 管理员批量归档，`{ids:[1,2]}`，最多 100 条，整批事务，须先退宿结清交接 |
 | `/dormitories` | GET / POST | 管理员，列表 / 新增 |
 | `/dormitories/{id}` | GET / PUT / DELETE | 管理员，详情含 students；删除要求无入住 |

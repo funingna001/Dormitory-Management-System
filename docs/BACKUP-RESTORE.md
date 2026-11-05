@@ -13,7 +13,7 @@ python scripts/backup-restore.py verify --backup backups/full/full-实际时间-
 
 默认从进程环境变量和项目 `.env` 读取 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`、`UPLOAD_DIR`。环境变量优先。无 `DB_URL` 时使用 `127.0.0.1:3306/susheguanli`；附件默认 `uploads/repair`。可显式指定 `--host`、`--port`、`--database`、`--user`、`--password-env`、`--upload-dir`、`--output`。相对路径以当前工作目录为准，因此示例均从项目根目录执行。
 
-MySQL 依赖 PyMySQL，可使用项目已有的 `artifacts/migration-deps`，或在独立虚拟环境安装。数据库表须为 InnoDB；当前格式针对本项目的普通表，不支持视图、触发器、存储过程、事件和数据库账号授权。这些对象应由数据库原生工具另行管理。备份不会设置全局锁，也不需要读取 MySQL 系统账号表。
+MySQL 模式需要 PyMySQL，可在独立虚拟环境中安装：`python -m pip install pymysql`。数据库表须为 InnoDB；当前格式针对本项目的普通表，不支持视图、触发器、存储过程、事件和数据库账号授权。这些对象应由数据库原生工具另行管理。备份不会设置全局锁，也不需要读取 MySQL 系统账号表。
 
 SQLite 模式显式指定实际数据库文件，不能用旧 SQLite 副本替代当前 MySQL 数据：
 
@@ -31,7 +31,7 @@ python scripts/backup-restore.py create --engine sqlite --sqlite-path path/to/cu
 python scripts/backup-restore.py create --engine mysql --offline --keep-days 60 --keep-last 14
 ```
 
-可通过 Windows 任务计划程序定期安排停写、备份和启动服务。应另将备份复制到独立存储，并定期执行下述恢复演练。本次未安装计划任务或修改服务启动配置。
+定时备份需要自行配置任务计划，将停写、备份和启动服务安排在同一流程中。备份还应复制到独立存储，并定期恢复检查。
 
 ## 恢复演练
 
@@ -49,7 +49,7 @@ python scripts/backup-restore.py restore --backup backups/full/full-实际时间
 
 恢复前校验全部备份文件；恢复后逐表核对行数和内容指纹，并核对附件哈希。MySQL 的表结构包含原有索引。DDL 无法整体事务回滚；中途失败可能在新目标库留下不完整的表，附件复制失败也可能留下不完整目录。保留错误现场，另选新的空目标重试，禁止把失败目标接入应用。
 
-恢复后使用单独端口启动应用，指向恢复库和恢复附件目录，检查登录、住宿历史、账单、维修图片与检查图片。确认结果后再安排正式切换；本次代码验证不替换现有业务数据库。
+恢复后使用单独端口启动应用，指向恢复库和恢复附件目录，检查登录、住宿历史、账单、维修图片与检查图片。确认恢复结果后再安排正式切换。
 
 ## 自动化回归
 
@@ -62,4 +62,4 @@ python scripts/test-backup-restore.py
 
 MySQL 演练使用临时实例的 root 账号，密码由 `TEST_BACKUP_MYSQL_PASSWORD` 传入（默认空，适用于隔离临时实例）。仅创建并清理随机命名的 `susheguanli_test_backup_*` 测试库；不连接 `.env` 中的业务库。SQLite 演练使用独立临时文件及模拟附件。
 
-旧的 `backup-before-features.py` 保留为历史改造脚本，日常备份请使用这里的新脚本。
+`backup-before-features.py` 是旧版升级时使用的脚本，日常备份使用 `backup-restore.py`。

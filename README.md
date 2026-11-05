@@ -1,32 +1,37 @@
 # 宿舍管理系统
 
-这是一个宿舍管理系统的个人练习仓库。
+一个用于练习的宿舍管理系统，包含学生档案、床位安排、住宿审批和报修等功能。
 
 Vue 3 + Vite 前端，Spring Boot 4 + Spring Security 后端，Java 17，支持 MySQL / SQLite。
 
 ## 页面展示
 
-查看 [完整页面展示与功能说明](docs/SHOWCASE.md)：包含登录、功能首页、住宿概览、学生与宿舍管理、床位管理，以及报修派单和验收记录等 **11 张实际运行截图**。截图均使用虚构演示数据。
+[页面截图](docs/SHOWCASE.md)包括登录、管理首页、学生与宿舍管理、报修派单等页面，使用虚构演示数据。
 
-![管理员功能首页：业务分类、功能搜索与常用入口](docs/images/02-admin-home.png)
+![管理员功能首页](docs/images/02-admin-home.png)
 
 ## 功能
 
-学生档案、楼栋宿舍、床位分配、住宿审批与历史、报修、通知、访客、卫生检查、费用台账、物品交接和 Excel 导入导出。支持管理员、宿管、辅导员、学生和维修人员角色。
+系统分为管理员、宿管、辅导员、学生和维修人员五种角色，主要功能有：
 
-管理员概览页提供 DeepSeek 统计查询：识别自然语言问题，在本地查询学生、年级、楼栋入住、房间容量和报修统计。无 Key 时可使用本地统计。
+- 学生与住宿：档案管理、楼栋宿舍、床位分配、入住和调退宿审批、住宿历史。
+- 校园服务：报修派单与验收、通知公告、访客登记、留宿申请、卫生与安全检查。
+- 费用与物品：住宿及水电费用台账、缴费和退款登记、家具钥匙领用与归还。
+- 管理工具：账号和楼栋权限、业务操作记录、Excel 导入导出、住宿数据统计。
 
-管理员登录后进入功能首页，可按“数据与查询、宿舍与床位、学生与入住、校园服务、费用与物品、系统与权限”六类查找模块，也可搜索“派单”“调宿”“费用”“密码重置”“AI”等关键词直接进入目标模块。左侧按分类导航，模块页面顶部可返回功能首页。
+管理员首页按业务分类提供入口，也可以搜索“派单”“调宿”等关键词。具体流程见 [业务说明](docs/BUSINESS-FEATURES.md)。费用为人工登记台账，未接入第三方支付、短信或门禁。
+
+概览页还带有统计助手，可以查询入住率、楼栋入住情况和报修汇总。配置 DeepSeek 后支持自然语言识别，不配置也能使用本地统计。
 
 ## 环境
 
 JDK 17、Maven 3.9+、Node.js 22.12+。默认 MySQL 8，SQLite 模式无需安装数据库。
 
-已附官方 Maven Wrapper，未安装 Maven 时可用 `./mvnw`（Windows 为 `.\mvnw.cmd`）替换下文 `mvn`。首次使用需要联网下载 Maven 3.9.9。
+没有安装 Maven 时，可用仓库里的 `./mvnw`（Windows 为 `.\mvnw.cmd`）替代下文的 `mvn`。首次运行会下载 Maven 3.9.9。
 
 ## 快速体验（独立 SQLite 演示库）
 
-首次启动前可按 [演示说明](docs/DEMO.md) 创建虚构数据，也可直接启动空库。在项目根目录打开 PowerShell：
+想先看看页面，可以按 [演示数据说明](docs/DEMO.md)创建 `demo.db`，也可以直接启动空库。在项目根目录打开 PowerShell：
 
 ```powershell
 $env:ADMIN_INITIAL_PASSWORD = '请替换为至少12字符的独立强密码'
@@ -42,12 +47,12 @@ npm ci --ignore-scripts
 npm run dev
 ```
 
-打开 http://127.0.0.1:5173 ，输入 `admin`、自行设置的密码和验证码。后端端口为 8030。首次启动自动建表，已有管理员时不覆盖密码。
+打开 http://127.0.0.1:5173，用 `admin`、上面设置的密码和验证码登录。后端端口为 8030。首次启动自动建表；已有管理员账号时不会覆盖密码。
 Linux/macOS 设置相同环境变量后执行 `mvn spring-boot:run -Dspring-boot.run.profiles=sqlite`。
 
 ## MySQL 部署
 
-用数据库管理员账号执行，替换占位密码：
+用数据库管理员账号创建库和应用账号，密码换成自己的：
 
 ```sql
 CREATE DATABASE susheguanli CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -66,10 +71,9 @@ powershell -ExecutionPolicy Bypass -File scripts/start-frontend.ps1
 
 ## DeepSeek 查询
 
-在 `.env` 设置 `DEEPSEEK_API_KEY` 并重启后端。默认模型 `deepseek-flash`，可用 `DEEPSEEK_MODEL` 修改。
-入口：管理员 → 住宿数据概览 → 管理员统计助手。
-DeepSeek 仅接收本次提问和固定查询类型说明；数据库统计内容保留在本地，不执行模型生成的 SQL。
-服务异常时返回本地统计并提示。配置、接口及口径见 [AI 助手](docs/AI-ASSISTANT.md)。
+在 `.env` 设置 `DEEPSEEK_API_KEY` 并重启后端，然后进入“数据概览 → 管理员统计助手”。默认模型为 `deepseek-flash`，可通过 `DEEPSEEK_MODEL` 修改。
+
+模型只识别问题对应的查询类型，统计由后端固定 SQL 完成。未配置密钥或调用失败时返回本地统计。配置和统计口径见 [统计助手](docs/AI-ASSISTANT.md)。
 
 ## 构建与验证
 
@@ -98,6 +102,6 @@ npm run build
 | `docs/REPAIR-WORKFLOW.md` | 报修、派单、维修与验收流程 |
 | `docs/BACKUP-RESTORE.md` | 备份恢复 |
 
-发布见 [发布检查](docs/RELEASING.md)，开发见 [CONTRIBUTING](CONTRIBUTING.md)，安全反馈见 [SECURITY](SECURITY.md)。
-`legacy/` 为不参与构建的旧代码；费用为台账，不含真实支付、短信或门禁硬件接入。
-采用 [MIT License](LICENSE)。
+发布前参考 [发布说明](docs/RELEASING.md)。参与开发见 [CONTRIBUTING](CONTRIBUTING.md)，安全问题反馈见 [SECURITY](SECURITY.md)。`legacy/` 保留旧版代码，不参与构建。
+
+许可证：[MIT](LICENSE)。

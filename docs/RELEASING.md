@@ -1,11 +1,24 @@
-# GitHub 发布检查
+# 发布说明
 
-1. 执行后端测试及前端构建，确认 Actions 通过。
-2. 使用新演示库验证 README，截图只使用虚构数据。
-3. 通过 Git 提交源码，不要将整个本地工作目录拖到 GitHub。
-4. 查看 `git status --short` 和 `git diff --cached --stat`，禁止提交 `.env`、`*.db`、`backups/`、`uploads/`、构建产物、缓存及日志。
-5. 本机审计产物 `artifacts-*.json` 和本机迁移记录 `docs/MYSQL-MIGRATION.md` 不参与发布。
-6. 已跟踪文件不受新增忽略规则影响，须从索引移除。若密钥曾公开，先撤销并更换，再处理 Git 历史。
-7. 核对 LICENSE、仓库简介及文档链接，可在 GitHub 启用私密漏洞报告。
+## 构建
 
-不附带真实业务数据、管理员固定密码或 API Key。部署者自行设置初始化密码。
+提交前运行后端测试和前端构建，推送后查看 GitHub Actions 的结果。命令见 [项目首页](../README.md#构建与验证)。使用新演示库检查启动步骤；页面有变化时更新 [截图](SHOWCASE.md)。
+
+## 确认提交内容
+
+在项目根目录检查待提交文件：
+
+```powershell
+git status --short
+git diff --cached --stat
+```
+
+提交源码、文档和演示截图。`.env`、数据库、附件、备份、构建产物、缓存及日志留在本机；`.gitignore` 已列出对应规则，但对已经跟踪的文件不生效，误加入时需要从索引移除。
+
+`artifacts/`、`artifacts-*.json` 和本机迁移记录 `docs/MYSQL-MIGRATION.md` 也不参与发布。展示页使用相对路径，提交时需包含 `docs/images/` 中的图片。
+
+## 配置与数据
+
+仓库只提供 [.env.example](../.env.example)，初始化密码由部署者设置。截图使用虚构数据，不附带真实学生资料。密钥如果曾经公开，先撤销并更换，再处理仓库记录。
+
+最后核对文档链接和许可证。需要接受私密漏洞反馈时，在 GitHub 仓库设置中开启 Private vulnerability reporting，说明见 [安全反馈](../SECURITY.md)。
