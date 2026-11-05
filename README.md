@@ -4,6 +4,12 @@
 
 Vue 3 + Vite 前端，Spring Boot 4 + Spring Security 后端，Java 17，支持 MySQL / SQLite。
 
+## 页面展示
+
+查看 [完整页面展示与功能说明](docs/SHOWCASE.md)：包含登录、功能首页、住宿概览、学生与宿舍管理、床位管理，以及报修派单和验收记录等 **11 张实际运行截图**。截图均使用虚构演示数据。
+
+![管理员功能首页：业务分类、功能搜索与常用入口](docs/images/02-admin-home.png)
+
 ## 功能
 
 学生档案、楼栋宿舍、床位分配、住宿审批与历史、报修、通知、访客、卫生检查、费用台账、物品交接和 Excel 导入导出。支持管理员、宿管、辅导员、学生和维修人员角色。
@@ -85,6 +91,8 @@ npm run build
 | `src/main/java/` | 认证、业务与 REST API |
 | `src/main/resources/db/` | MySQL / SQLite 建表脚本 |
 | `src/test/` | 认证、权限、业务、并发与 AI 测试 |
+| `docs/SHOWCASE.md` | 页面展示与功能截图 |
+| `docs/images/` | 页面展示引用的截图 |
 | `docs/API.md` | 接口与角色权限 |
 | `docs/BUSINESS-FEATURES.md` | 业务说明 |
 | `docs/REPAIR-WORKFLOW.md` | 报修、派单、维修与验收流程 |
