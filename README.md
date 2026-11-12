@@ -6,7 +6,7 @@ Vue 3 + Vite 前端，Spring Boot 4 + Spring Security 后端，Java 17，支持 
 
 ## 页面展示
 
-[页面截图](docs/SHOWCASE.md)包括登录、管理首页、学生与宿舍管理、报修派单等页面，使用虚构演示数据。
+[页面截图](docs/SHOWCASE.md)包括管理功能、学生与宿管等角色界面，以及同一张工单从学生报修、管理员派单、维修处理到学生验收的完整流程，均使用独立的虚构演示数据。
 
 ![管理员功能首页](docs/images/02-admin-home.png)
 
@@ -102,6 +102,6 @@ npm run build
 | `docs/REPAIR-WORKFLOW.md` | 报修、派单、维修与验收流程 |
 | `docs/BACKUP-RESTORE.md` | 备份恢复 |
 
-发布前参考 [发布说明](docs/RELEASING.md)。参与开发见 [CONTRIBUTING](CONTRIBUTING.md)，安全问题反馈见 [SECURITY](SECURITY.md)。`legacy/` 保留旧版代码，不参与构建。
+发布前参考 [发布说明](docs/RELEASING.md)。参与开发见 [CONTRIBUTING](CONTRIBUTING.md)，安全问题反馈见 [SECURITY](SECURITY.md)。
 
 许可证：[MIT](LICENSE)。
