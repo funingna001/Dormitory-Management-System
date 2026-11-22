@@ -146,7 +146,7 @@ class SecurityAndHousingIntegrationTest extends IntegrationSupport {
         var file=new MockMultipartFile("image","evil.html","image/png","<script>alert(1)</script>".getBytes());
         mvc.perform(multipart("/api/repairs").file(file).param("repairType","灯具").param("description","灯坏了").with(csrf())).andExpect(status().isBadRequest());
     }
-    @Test @WithMockUser(roles="ADMIN") void exportAndLocalAssistantWork() throws Exception {
+    @Test @WithMockUser(username = "admin", roles = "ADMIN") void exportAndLocalAssistantWork() throws Exception {
         mvc.perform(get("/api/export/all")).andExpect(status().isOk()).andExpect(content().contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         mvc.perform(post("/api/ai/chat").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"统计摘要\"}")).andExpect(status().isOk()).andExpect(jsonPath("$.reply").isString());
     }
